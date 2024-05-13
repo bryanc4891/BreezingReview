@@ -1,7 +1,7 @@
 import React from 'react';
-import './App.css';
-import MapComponent from './MapComponent';
-import LoginPanel from './LoginPanel';
+import '../styles/App.css';
+import MapComponent from '../components/MapComponent';
+import LoginPanel from '../components/LoginPanel';
 
 function App() {
     const handleLogin = (username, password) => {

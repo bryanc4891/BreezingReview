@@ -1,19 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
 import React from 'react';
+import './App.css';
 import MapComponent from './MapComponent';
+import LoginPanel from './LoginPanel';
 
 function App() {
-  return (
-      <div className="App">
-        <header className="App-header">
-          <p>
-            Click on the map to rate locations.
-          </p>
-        </header>
-        <MapComponent />
-      </div>
-  );
+    const handleLogin = (username, password) => {
+        console.log("Login Attempt:", username, password);
+        // Implement the login logic here
+    };
+
+    return (
+        <div className="App">
+            <div className="map-container">
+                <MapComponent />
+            </div>
+            <div className="login-container">
+                <LoginPanel onLogin={handleLogin} />
+            </div>
+        </div>
+    );
 }
 
 export default App;

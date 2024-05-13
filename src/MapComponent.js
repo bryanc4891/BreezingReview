@@ -118,7 +118,7 @@ const MapComponent = () => {
         };
     }, [ratedPlaces]); // Dependency array to control re-rendering
 
-    return <div ref={mapContainerRef} style={{ height: '500px' }} id="map"></div>;
+    return <div ref={mapContainerRef} style={{ height: '100%' }} id="map"></div>;
 };
 
 export default MapComponent;

@@ -1,0 +1,29 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.App {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+.map-container {
+  flex-grow: 1;
+  padding-right: 10px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.login-container {
+  width: 300px;
+  background-color: #f4f4f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-shadow: -3px 0 6px rgba(0,0,0,0.1);
+}

@@ -22,7 +22,7 @@ const MapComponent = () => {
             let userLng = -122.200676;
 
             try {
-                const response = await fetch('https://ipinfo.io/json?token=YOUR_TOKEN');
+                const response = await fetch(`https://ipinfo.io/json?token=${process.env.REACT_APP_IP_INFO_TOKEN}`);
                 if (response.ok) {
                     const data = await response.json();
                     const loc = data.loc.split(',');

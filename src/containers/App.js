@@ -1,24 +1,56 @@
 import React from 'react';
+import { Authenticator, View, Button, Heading } from '@aws-amplify/ui-react';
+import '@aws-amplify/ui-react/styles.css';
 import '../styles/App.css';
+import configureAmplify from '../config/AmplifyConfig';
 import MapComponent from '../components/MapComponent';
-import LoginPanel from '../components/LoginPanel';
+import {UserProfileProvider, useUserProfile} from '../contexts/UserContext';
 
-function App() {
-    const handleLogin = (username, password) => {
-        console.log("Login Attempt:", username, password);
-        // Implement the login logic here
-    };
+
+configureAmplify();
+
+const App = () => {
+    return (
+        <Authenticator
+            loginMechanisms={['email']}
+            signUpAttributes={['email', 'custom:Username', 'custom:City']}
+            formFields={{
+                signUp: {
+                    email: { order: 1 },
+                    'custom:Username': { label: 'Username', placeholder: 'Enter your username', required: true, order: 2 },
+                    'custom:City': { label: 'City', placeholder: 'Enter your city', required: false, order: 3 },
+                    password: { order: 4 },
+                },
+            }}
+        >
+            {({ signOut, user }) => user && (
+                <UserProfileProvider user={user}>
+                    <AuthenticatedApp signOut={signOut} />
+                </UserProfileProvider>
+            )}
+        </Authenticator>
+    );
+};
+
+const AuthenticatedApp = ({ signOut }) => {
+    const userProfile = useUserProfile();
+    if (!userProfile) {
+        return <div>Loading...</div>;
+    }
 
     return (
-        <div className="App">
+        <View className="App">
+            <div className="header">
+                <Heading level={3} className="custom-heading">Hello, {userProfile['custom:Username']}!</Heading>
+                <div className="sign-out-container">
+                    <Button variation="primary" onClick={signOut}>Sign out</Button>
+                </div>
+            </div>
             <div className="map-container">
                 <MapComponent />
             </div>
-            <div className="login-container">
-                <LoginPanel onLogin={handleLogin} />
-            </div>
-        </div>
+        </View>
     );
-}
+};
 
 export default App;

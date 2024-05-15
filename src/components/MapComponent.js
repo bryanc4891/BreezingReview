@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useUserProfile } from '../contexts/UserContext';
 
 const MapComponent = () => {
-
+    const userProfile = useUserProfile();
     const [ratedPlaces] = useState([
         { id: 1, lat: 47.610378, lng: -122.200676, rating: 'Good', name: 'Place One' },
         { id: 2, lat: 47.610978, lng: -122.201676, rating: 'Not Good', name: 'Place Two' }
@@ -14,6 +15,7 @@ const MapComponent = () => {
     const mapRef = useRef(null);
 
     useEffect(() => {
+        // console.log(userProfile)
         const fetchLocationAndInitializeMap = async () => {
             // Fetch user's location based on IP, default to Bellevue if not found
             let userLat = 47.610378;
@@ -42,7 +44,6 @@ const MapComponent = () => {
                 zoom: 13
             });
             mapRef.current = map; // Store reference to the map instance
-
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
@@ -95,16 +96,16 @@ const MapComponent = () => {
                     .setContent(`
                         <div>
                             <p>Location: ${placeName}</p>
-                            <button onclick="window.ratePlace('Good', ${lat}, ${lng}, ${placeId}, '${placeName}', '${cityName}')">Good</button>
-                            <button onclick="window.ratePlace('Not Good', ${lat}, ${lng}, ${placeId}, '${placeName}', '${cityName}')">Not Good</button>
+                            <button onclick="window.ratePlace('${userProfile.sub}', 'Good', ${lat}, ${lng}, ${placeId}, '${placeName}', '${cityName}')">Good</button>
+                            <button onclick="window.ratePlace('${userProfile.sub}', 'Not Good', ${lat}, ${lng}, ${placeId}, '${placeName}', '${cityName}')">Not Good</button>
                         </div>
                     `)
                     .openOn(map);
             });
 
-            window.ratePlace = (rating, lat, lng, placeId, placeName, cityName) => {
+            window.ratePlace = (userId, rating, lat, lng, placeId, placeName, cityName) => {
                 const created_at = new Date().toISOString() // Get UTC timestamp in ISO 8601 format
-                console.log(`Rating: ${rating}, City: ${cityName}, Place: ${placeName}, PlaceID: ${placeId}, Latitude: ${lat}, Longitude: ${lng}, CreatedAt: ${created_at}`);
+                console.log(`User: ${userId}, Rating: ${rating}, City: ${cityName}, Place: ${placeName}, PlaceID: ${placeId}, Latitude: ${lat}, Longitude: ${lng}, CreatedAt: ${created_at}`);
             };
         };
 
@@ -118,7 +119,7 @@ const MapComponent = () => {
         };
     }, [ratedPlaces]); // Dependency array to control re-rendering
 
-    return <div ref={mapContainerRef} style={{ height: '100%' }} id="map"></div>;
+    return <div ref={mapContainerRef} style={{ height: '100vh' }} id="map"></div>;
 };
 
 export default MapComponent;

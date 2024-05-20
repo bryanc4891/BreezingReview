@@ -1,15 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet.heat/dist/leaflet-heat.js';
 import { useUserProfile } from '../contexts/UserContext';
 
 const MapComponent = () => {
     const userProfile = useUserProfile();
-    const [ratedPlaces] = useState([
-        { id: 1, lat: 47.610378, lng: -122.200676, rating: 'Good', name: 'Place One' },
-        { id: 2, lat: 47.610978, lng: -122.201676, rating: 'Not Good', name: 'Place Two' }
-        // Just a test here, for rendering community preferences
-    ]);
 
     const mapContainerRef = useRef(null);
     const mapRef = useRef(null);
@@ -48,27 +44,29 @@ const MapComponent = () => {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
 
-            // Custom divIcon with FontAwesome
-            const createIcon = (rating) => L.divIcon({
-                className: 'custom-icon',
-                html: `<i class="fa ${rating === 'Good' ? 'fa-thumbs-up' : 'fa-thumbs-down'}" style="color: ${rating === 'Good' ? 'green' : 'red'}; font-size: 24px; background: transparent;"></i>`,
-                iconSize: [30, 42],
-                iconAnchor: [15, 42],
-                popupAnchor: [0, -42]
-            });
+            // Function to generate random points around a place
+            const generateRandomPoints = (center, numPoints, maxDistance, maxIntensity) => {
+                const points = [];
+                for (let i = 0; i < numPoints; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = Math.random() * maxDistance;
+                    const lat = center[0] + (distance / 111) * Math.cos(angle); // 111 km per degree of latitude
+                    const lng = center[1] + (distance / (111 * Math.cos(center[0] * (Math.PI / 180)))) * Math.sin(angle); // Adjust for longitude
+                    const intensity = Math.random() * maxIntensity;
+                    points.push([lat, lng, intensity]);
+                }
+                return points;
+            };
 
-            // Projecting fav places or community preferences
-            ratedPlaces.forEach(place => {
-                const icon = createIcon(place.rating);
-                const marker = L.marker([place.lat, place.lng], { icon }).addTo(map);
-                marker.bindPopup(`<strong>${place.name}</strong><br>Rating: ${place.rating}`, { closeButton: false });
-                marker.on('mouseover', function (e) {
-                    this.openPopup();
-                });
-                marker.on('mouseout', function (e) {
-                    this.closePopup();
-                });
-            });
+            // Generate N random points around Bellevue with intensity between 0 and 1
+            const heatData = generateRandomPoints([47.610378, -122.200676], 2000, 5, 1);
+
+            // Add the heat layer to the map
+            L.heatLayer(heatData, {
+                radius: 25,      // Radius of each “point” of the heatmap
+                blur: 15,        // Amount of blur
+                maxZoom: 18      // Zoom level at which the points reach maximum intensity
+            }).addTo(map);
 
             // Function to correct the longitude to be within -180 to 180 degrees
             function wrapLongitude(lng) {
@@ -91,7 +89,7 @@ const MapComponent = () => {
                 const placeName = data.name || data.display_name;
                 const cityName = data.address?.city || 'Not available';
 
-                const popup = L.popup()
+                L.popup()
                     .setLatLng(e.latlng)
                     .setContent(`
                         <div>
@@ -117,7 +115,7 @@ const MapComponent = () => {
                 mapRef.current = null;
             }
         };
-    }, [ratedPlaces]); // Dependency array to control re-rendering
+    }, ); // Dependency array to control re-rendering
 
     return <div ref={mapContainerRef} style={{ height: '100vh' }} id="map"></div>;
 };

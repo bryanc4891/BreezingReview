@@ -1,0 +1,78 @@
+.user-settings {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.settings-button {
+    cursor: pointer;
+}
+
+.settings-dropdown {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    min-width: 150px;
+    max-width: 250px;
+    white-space: nowrap;
+    background-color: #B2D2DE;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    border-radius: 4px;
+    z-index: 1000;
+}
+
+.settings-option {
+    font-weight: bold;
+    padding: 8px 15px;
+    cursor: pointer;
+    color: black;
+    white-space: nowrap;
+}
+
+.settings-option:hover {
+    background-color: #f0f0f0;
+}
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-radius: 4px;
+    z-index: 1000;
+    min-width: 300px;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+}
+
+.modal h3 {
+    margin-top: 0;
+}
+
+.modal label {
+    display: block;
+    margin-top: 10px;
+}
+
+.modal input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+.modal button {
+    margin-right: 10px;
+}

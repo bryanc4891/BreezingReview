@@ -98,10 +98,15 @@ const MapComponent = () => {
                             <p>Location: ${placeName}</p>
                             <button onclick="window.ratePlace('${userProfile.sub}', 'Good', ${lat}, ${lng}, ${placeId}, '${placeName}', '${cityName}')">Good</button>
                             <button onclick="window.ratePlace('${userProfile.sub}', 'Not Good', ${lat}, ${lng}, ${placeId}, '${placeName}', '${cityName}')">Not Good</button>
+                            <button onclick="window.scheduleMeeting('${placeId}', '${lat}', '${lng}')">Schedule Meetup</button>
                         </div>
                     `)
                         .openOn(map);
                 });
+
+                window.scheduleMeeting = (placeId, lat, long) => {
+                    window.location.href = `/meeting/?placeID=${placeId}&lat=${lat}&long=${long}`
+                }
 
                 window.ratePlace = (userId, rating, lat, lng, placeId, placeName, cityName) => {
                     const created_at = new Date().toISOString() // Get UTC timestamp in ISO 8601 format
@@ -121,7 +126,9 @@ const MapComponent = () => {
         };
     }, );
 
-    return <div ref={mapContainerRef} style={{ height: '100vh' }} id="map"></div>;
+    return <div className="map-container">
+          <div ref={mapContainerRef} style={{ height: '100vh' }} id="map"></div>      
+    </div>;
 };
 
 export default MapComponent;

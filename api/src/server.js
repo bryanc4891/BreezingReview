@@ -3,7 +3,7 @@ require('dotenv').config();
 const bodyParser = require('body-parser');
 const cors = require('cors')
 const axios = require('axios')
-const dotenv = require('dotenv')
+const dotenv = require('dotenv').config
 
 
 const app = express();
@@ -21,14 +21,16 @@ app.use(bodyParser.urlencoded({
   }));
 
 app.post('/meeting', (req, res) => {
+    console.log("process", process.env);
+    console.log("\n\n\n\n\n\n\n");
 
     axios.post(`${process.env.MEETUP_ENDPOINT}/prod/email/isWorking`, {}, {
         headers: {
             'x-api-key': process.env.API_KEY
         }
     })
-    .then(response => console.log('response', response))
-    .catch(error => console.log(error));
+    // .then(response => console.log('response', response))
+    // .catch(error => console.log(error));
 
     res.send({
         code: 200,

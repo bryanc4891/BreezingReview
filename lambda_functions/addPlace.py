@@ -43,16 +43,17 @@ def lambda_handler(event, context):
         "isBase64Encoded": "false"
     }
     queryParams = event.get('queryStringParameters')
-    if queryParams is None or queryParams.get('placeid') is None or queryParams.get('placename') is None or queryParams.get('placelongitude') is None or queryParams.get('placelatitude') is None:
+    body = json.loads(event.get('body'))
+    if body is None or body.get('placeid') is None or body.get('placename') is None or body.get('placelongitude') is None or body.get('placelatitude') is None:
         res["statusCode"] = 400
         res["body"] = "Parameters not provided"
         return res
 
-    placeId = queryParams.get('placeid')
-    placeName = queryParams.get('placename')
-    placeLongitude = queryParams.get('placelongitude')
-    placeLatitude = queryParams.get('placelatitude')
-    defaultCity = "Tacoma"
+    placeId = body.get('placeid')
+    placeName = body.get('placename')
+    placeLongitude = body.get('placelongitude')
+    placeLatitude = body.get('placelatitude')
+    defaultCity = "Tacoma" if body.get('defaultcity') is None else body.get('defaultcity')
     queryString = f"INSERT INTO PLACE (PlaceID, PlaceName, PlaceLongitude, PlaceLatitude, Place_City) VALUES ('{placeId}', '{placeName}', '{placeLongitude}', '{placeLatitude}', '{defaultCity}')"
     print(queryString)
     with conn.cursor() as cur:

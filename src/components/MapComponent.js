@@ -62,6 +62,10 @@ const MapComponent = () => {
         console.log(`User: ${userId}, Rating: ${rating}, City: ${cityName}, Place: ${placeName}, PlaceID: ${placeId}, Latitude: ${lat}, Longitude: ${lng}, CreatedAt: ${created_at}`);
     };
 
+    window.scheduleMeeting = (placeId, lat, long) => {
+        window.location.href = `/meeting/?placeID=${placeId}&lat=${lat}&long=${long}`
+    }
+
     function addPopupOnMap(map) {
         // user making reviews
         map.on('click', async function (e) {
@@ -86,6 +90,7 @@ const MapComponent = () => {
                         <p>Location: ${placeName}</p>
                         <button onclick="window.ratePlace('${userProfile.sub}', 'Good', ${lat}, ${lng}, ${placeId}, '${placeName}', '${cityName}')">Good</button>
                         <button onclick="window.ratePlace('${userProfile.sub}', 'Not Good', ${lat}, ${lng}, ${placeId}, '${placeName}', '${cityName}')">Not Good</button>
+                        <button onclick="window.scheduleMeeting('${placeId}', '${lat}', '${lng}')">Schedule Meetup</button>
                     </div>
                 `)
                 .openOn(map);
@@ -120,7 +125,9 @@ const MapComponent = () => {
         }
     },  []);
 
-    return <div ref={mapContainerRef} style={{ height: '100vh' }} id="map"></div>;
+    return <div className="map-container">
+          <div ref={mapContainerRef} style={{ height: '100vh' }} id="map"></div>
+    </div>;
 };
 
 export default MapComponent;

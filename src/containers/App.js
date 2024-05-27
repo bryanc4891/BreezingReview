@@ -1,4 +1,5 @@
 import React from 'react';
+import { Route, Routes } from 'react-router-dom';
 import { Authenticator, View, Heading } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import '../styles/App.css';
@@ -6,6 +7,7 @@ import configureAmplify from '../config/AmplifyConfig';
 import MapComponent from '../components/MapComponent';
 import UserSetting from '../components/UserSetting';
 import { UserProfileProvider, useUserProfile } from '../contexts/UserContext';
+import { MeetingComponent } from '../components/MeetingComponent';
 
 configureAmplify();
 
@@ -42,9 +44,11 @@ const AuthenticatedApp = ({ signOut }) => {
         <View className="App">
             <Heading level={3} className="custom-heading">Hello, {userProfile['custom:Username']}!</Heading>
             <UserSetting signOut={signOut} userProfile={userProfile} />
-            <div className="map-container">
-                <MapComponent />
-            </div>
+
+            <Routes>
+                <Route path="/" element={<MapComponent />}/>
+                <Route path="/meeting" element={<MeetingComponent />}/>
+            </Routes>
         </View>
     );
 };

@@ -19,9 +19,8 @@ export const MeetingComponent = () => {
     const [searchParams, setSearchParams] = useSearchParams();
 
     const friends = [
-        {label: "John", id: 1235},
-        {label: "Bill", id: 12335},
-        {label: "Hank", id: 12325}
+        {label: "agam", id: "28e10380-c071-7064-a3bb-11a78a0df5bc"},
+        {label: "Bryan", id: "f8f1f3c0-4001-7056-f23a-61e560a6bad7"}
     ]
 
     const onSubmit = (event) => {

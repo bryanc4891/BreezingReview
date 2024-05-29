@@ -20,12 +20,12 @@ export const MeetingComponent = () => {
 
     const friends = [
         {label: "agam", id: "28e10380-c071-7064-a3bb-11a78a0df5bc"},
-        {label: "Bryan", id: "f8f1f3c0-4001-7056-f23a-61e560a6bad7"}
+        {label: "Bryan", id: "f8f1f3c0-4001-7056-f23a-61e560a6bad7"},
+        {label: "Mike", id: ""}
     ]
 
     const onSubmit = (event) => {
         event.preventDefault();
-        console.log('submitting', event.currentTarget.elements);
         const formElements = Array.from(event.currentTarget.elements);
         setFormState({
             place: formElements.find(item => item.id === "location_field").defaultValue,
@@ -51,13 +51,14 @@ export const MeetingComponent = () => {
         .catch((error) => console.log(error));
        }, []);
 
-    return <div>
-        <h1>Schedule a Meeting</h1>
+    return <>
+        
 
 
   
     <form onSubmit={onSubmit}>
-        <Stack spacing={4} sx={{width: '600px;'}}>
+        <Stack spacing={4} sx={{width: '600px;', margin: 'auto'}}>
+        <h1>Schedule a Meeting</h1>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
             <TextField 
                 value={ location?.display_name ?? 'Please enter a location'} 
@@ -84,5 +85,5 @@ export const MeetingComponent = () => {
         </Stack>
 
         </form>
-    </div>
+    </>
 }

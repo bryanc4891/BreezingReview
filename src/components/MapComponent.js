@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.heat/dist/leaflet-heat.js';
+import axios from 'axios';
 import { useUserProfile } from '../contexts/UserContext';
 
 const MapComponent = () => {
@@ -42,18 +43,14 @@ const MapComponent = () => {
         let userLng = -122.200676;
 
         try {
-            const response = await fetch(`https://ipinfo.io/json?token=${process.env.REACT_APP_IP_INFO_TOKEN}`);
-            if (response.ok) {
-                const data = await response.json();
-                const loc = data.loc.split(',');
-                userLat = parseFloat(loc[0]);
-                userLng = parseFloat(loc[1]);
-            } else {
-                console.error('Failed to fetch location:', response.statusText);
-            }
+            const response = await axios.get('http://localhost:8000/geoinfo');
+            const loc = response.data.loc.split(',');
+            userLat = parseFloat(loc[0]);
+            userLng = parseFloat(loc[1]);
         } catch (error) {
-            console.error('Error fetching location:', error);
+            console.error('Error fetching location from server:', error);
         }
+
         return {userLat, userLng};
     }
 
@@ -118,7 +115,7 @@ const MapComponent = () => {
         // console.log("In use effect");
         fetchLocationAndInitializeMap();
         return () => {
-            if(mapRef.current) {
+            if (mapRef.current) {
                 mapRef.current.remove();
                 mapRef.current = null;
             }

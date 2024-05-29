@@ -32,11 +32,11 @@ const UserSetting = ({ signOut, userProfile }) => {
 
     const handleDeleteAccount = async () => {
         try {
-            // NOTE: not working when the app is running on localhost (CORS issue)
-            const params = new URLSearchParams({userid: userProfile.sub});
-            await axios.post(`${process.env.REACT_APP_API_URL_DELETE_USER}?${params.toString()}`, {
+            const response = await axios.post(`http://localhost:8000/delete-user`, {
                 userid: userProfile.sub
             });
+
+            console.log('Response from server:', response.data);
 
             await deleteAccount();
             setDeleteModalVisible(false);

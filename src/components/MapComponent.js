@@ -7,7 +7,9 @@ import { useUserProfile } from '../contexts/UserContext';
 
 const MapComponent = () => {
     const userProfile = useUserProfile();
-
+    const addPlaceUrl = "https://q5u6co31a9.execute-api.us-west-2.amazonaws.com/prod/place/addPlace";
+    const addReviewUrl = "https://sagfsdru31.execute-api.us-west-2.amazonaws.com/prod/review/addReview"
+    const getPlaceUrl = "https://q5u6co31a9.execute-api.us-west-2.amazonaws.com/prod/place/getPlace";
     const mapContainerRef = useRef(null);
     const mapRef = useRef(null);
 
@@ -54,10 +56,70 @@ const MapComponent = () => {
         return {userLat, userLng};
     }
 
+
     window.ratePlace = async (userId, rating, lat, lng, placeId, placeName, cityName) => {
         const created_at = new Date().toISOString() // Get UTC timestamp in ISO 8601 format
         console.log(`User: ${userId}, Rating: ${rating}, City: ${cityName}, Place: ${placeName}, PlaceID: ${placeId}, Latitude: ${lat}, Longitude: ${lng}, CreatedAt: ${created_at}`);
+        const review = rating === 'Good' ? 1 : 0;
+        const placeBody = {
+            placename: placeName,
+            placeid: placeId,
+            placelongitude: lng,
+            placelatitude: lat,
+            placecity: cityName
+        };
+        const reviewBody = {
+            userid: userId,
+            placeid: placeId,
+            review: review,
+            reviewedat: created_at
+        };
+        let getPlaceResult = await getPlace(getPlaceUrl, placeId);
+        console.log(getPlaceResult);
+        console.log(getPlaceResult.length);
+        if(getPlaceResult.length === 0) {
+            await insertData(addPlaceUrl, placeBody);
+            await insertData(addReviewUrl, reviewBody);
+        } else {
+            await insertData(addReviewUrl, reviewBody);
+        }
+        window.alert("Succeessfully Reviewed");
+        mapRef.current.closePopup();
+        console.log("REVIEW SUCCESS ");
     };
+
+    async function getPlace(url, placeId) {
+        try {
+            url = url + "?placeid=" + placeId;
+            console.log(url);
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            });
+            return response.json();
+        } catch (e) {
+            console.log("Error in getPlace: ", e);
+            return null;
+        }
+    }
+
+    async function insertData(url, data) {
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+            return response.json();
+        } catch (e) {
+            console.log("Error in inserting Data: ", e);
+            return null;
+        }
+    }
 
     window.scheduleMeeting = (placeId, lat, long) => {
         window.location.href = `/meeting/?placeID=${placeId}&lat=${lat}&long=${long}`

@@ -39,21 +39,107 @@ app.post('/meeting', (req, res) => {
 app.post('/delete-user', async (req, res) => {
     const params = new URLSearchParams({userid: req.body.userid});
     try {
-        const apiResponse = await axios.post(`${process.env.USER_ENDPOINT}/prod/user/deleteUser?${params.toString()}`, {}, {
+        const response = await axios.post(`${process.env.USER_ENDPOINT}/prod/user/deleteUser?${params.toString()}`, {}, {
             headers: {
                 'x-api-key': process.env.API_KEY
             }
         });
-        res.status(200).send(apiResponse.data);
-    } catch (apiError) {
-        console.error('Failed to delete user on external API:', apiError);
-        res.status(500).send('Failed to delete user');
+        res.send(response.data);
+    } catch (error) {
+        console.error('Failed to delete user on external API:', error);
+        res.send({
+            statusCode: 500,
+            message: 'Failed to delete user'
+        });
     }
+});
+
+app.post('/add-review', (req, res) => {
+    axios.post(`${process.env.REVIEW_ENDPOINT}/prod/review/addReview`, req.body, {
+        headers: {
+            'x-api-key': process.env.API_KEY
+        }
+    }).then(response => {
+        res.send({
+            statusCode: 200,
+            message: 'New review added successfully'
+        });
+    }).catch(error => {
+        console.error('Failed to add new review:', error);
+        res.send({
+            statusCode: 500,
+            message: 'Failed to add new review'
+        });
+    });
 });
 
 app.get('/meeting', (req, res) => {
     res.send("hello") ;
  });
+
+app.get('/check-place', (req, res) => {
+    axios.get(`${process.env.PLACE_ENDPOINT}/prod/place/getPlace`, {
+        params: {
+            placeid: req.query.placeid
+        },
+        headers: {
+            'x-api-key': process.env.API_KEY
+        }
+    }).then(response => {
+        if (response.data.length === 0) {
+            // Place does not exist, proceed with POST request to create a new place
+            axios.post(`${process.env.PLACE_ENDPOINT}/prod/place/addPlace`, req.query, {
+                headers: {
+                    'x-api-key': process.env.API_KEY
+                }
+            }).then(postResponse => {
+                res.send({
+                    statusCode: 200,
+                    message: 'New place added successfully'
+                });
+            }).catch(postError => {
+                console.error('Failed to add new place:', postError);
+                res.send({
+                    statusCode: 500,
+                    message: 'Failed to add new place'
+                });
+            });
+        } else {
+            // Place already exists, log and respond accordingly
+            console.log('Place already exists');
+            res.send({
+                statusCode: 200,
+                message: 'Place already exists'
+            });
+        }
+    }).catch(error => {
+        console.error('Failed to fetch place info:', error);
+        res.send({
+            statusCode: 500,
+            message: 'Failed to fetch place'
+        });
+    });
+});
+
+app.get('/heatmap-data', async (req, res) => {
+    try {
+        const response = await axios.get(`${process.env.REVIEW_ENDPOINT}/prod/review/getHeatmapData`, {
+            headers: {
+                'x-api-key': process.env.API_KEY
+            }
+        })
+        res.send({
+            statusCode: 200,
+            message: response.data
+        });
+    } catch (error) {
+        console.error('Failed to fetch IP info:', error);
+        res.send({
+            statusCode: 500,
+            message: 'Failed fetch reviews'
+        });
+    }
+});
 
 app.get('/geoinfo', async (req, res) => {
     try {
@@ -61,7 +147,7 @@ app.get('/geoinfo', async (req, res) => {
         res.json(response.data);
     } catch (error) {
         console.error('Failed to fetch IP info:', error);
-        res.status(500).json({ message: "Internal server error" });
+        res.json({ message: 'Failed to fetch geoinfo' });
     }
 });
 

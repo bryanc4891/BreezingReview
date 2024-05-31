@@ -1,6 +1,7 @@
 const express = require('express');
 require('dotenv').config();
 const bodyParser = require('body-parser');
+const moment = require('moment');
 const cors = require('cors')
 const axios = require('axios')
 
@@ -18,22 +19,36 @@ app.use(bodyParser.urlencoded({
   }));
 
 app.post('/meeting', (req, res) => {
-    console.log("process", process.env);
-    console.log("\n\n\n\n\n\n\n");
 
-    axios.post(`${process.env.MEETUP_ENDPOINT}/prod/email/isWorking`, {}, {
+    axios.post(`${process.env.MEETUP_ENDPOINT}/prod/meetup/addMeetup`, 
+        {
+            organiserid : req.body.organiser,
+            placeid: req.body.place,
+            timeofmeeting: req.body.datetime,
+            attendeeids: req.body.attendees
+        }, {
         headers: {
             'x-api-key': process.env.API_KEY
         }
     })
-    // .then(response => console.log('response', response))
-    // .catch(error => console.log(error));
-
-    res.send({
-        code: 200,
-        message: 'It worked',
-        request: req.body
-      }) ;
+    .then(response => {
+        console.log("data", response.data);
+        console.log(`${process.env.MEETUP_ENDPOINT}/prod/meetup/getMeetup?meetupId=${response.data}`);
+        axios.get(`${process.env.MEETUP_ENDPOINT}/prod/meetup/getMeetup?meetupId=${response.data}`, { 
+            headers: {
+                'x-api-key': process.env.API_KEY
+            }
+        })
+    })
+    .then(response => console.log("get response", response))
+    .catch((error) => {
+        console.log(error)
+        return res.send({
+            code: 503,
+            message: 'Something went wrong',
+            request: req.body
+        })
+    })    
 });
 
 app.post('/delete-user', async (req, res) => {

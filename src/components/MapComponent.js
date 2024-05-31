@@ -7,37 +7,22 @@ import { useUserProfile } from '../contexts/UserContext';
 
 const MapComponent = () => {
     const userProfile = useUserProfile();
-    const addPlaceUrl = "https://q5u6co31a9.execute-api.us-west-2.amazonaws.com/prod/place/addPlace";
-    const addReviewUrl = "https://sagfsdru31.execute-api.us-west-2.amazonaws.com/prod/review/addReview"
-    const getPlaceUrl = "https://q5u6co31a9.execute-api.us-west-2.amazonaws.com/prod/place/getPlace";
     const mapContainerRef = useRef(null);
     const mapRef = useRef(null);
 
-    // Function to generate random points around a place
-    const generateRandomPoints = (center, numPoints, maxDistance, maxIntensity) => {
-        const points = [];
-        for (let i = 0; i < numPoints; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const distance = Math.random() * maxDistance;
-            const lat = center[0] + (distance / 111) * Math.cos(angle); // 111 km per degree of latitude
-            const lng = center[1] + (distance / (111 * Math.cos(center[0] * (Math.PI / 180)))) * Math.sin(angle); // Adjust for longitude
-            const intensity = Math.random() * maxIntensity;
-            points.push([lat, lng, intensity]);
+    async function addHeatLayer(map) {
+        const heatDataRes = await axios.get('http://localhost:8000/heatmap-data');
+        if (heatDataRes.data.statusCode === 200) {
+            // Add the heat layer to the map
+            L.heatLayer(JSON.parse(heatDataRes.data.message.body), {
+                radius: 25,      // Radius of each “point” of the heatmap
+                blur: 15,        // Amount of blur
+                maxZoom: 18      // Zoom level at which the points reach maximum intensity
+            }).addTo(map);
+        } else {
+            console.log(heatDataRes.data)
         }
-        return points;
     };
-
-    function addHeatLayer(map) {
-        // Generate N random points around Bellevue with intensity between 0 and 1
-        const heatData = generateRandomPoints([47.610378, -122.200676], 1000, 5, 1);
-
-        // Add the heat layer to the map
-        L.heatLayer(heatData, {
-            radius: 25,      // Radius of each “point” of the heatmap
-            blur: 15,        // Amount of blur
-            maxZoom: 18      // Zoom level at which the points reach maximum intensity
-        }).addTo(map);
-    }
 
     async function fetchUserLocation() {
         // Fetch user's location based on IP, default to Bellevue if not found
@@ -56,70 +41,30 @@ const MapComponent = () => {
         return {userLat, userLng};
     }
 
-
     window.ratePlace = async (userId, rating, lat, lng, placeId, placeName, cityName) => {
         const created_at = new Date().toISOString() // Get UTC timestamp in ISO 8601 format
         console.log(`User: ${userId}, Rating: ${rating}, City: ${cityName}, Place: ${placeName}, PlaceID: ${placeId}, Latitude: ${lat}, Longitude: ${lng}, CreatedAt: ${created_at}`);
-        const review = rating === 'Good' ? 1 : 0;
-        const placeBody = {
-            placename: placeName,
-            placeid: placeId,
-            placelongitude: lng,
-            placelatitude: lat,
-            placecity: cityName
-        };
-        const reviewBody = {
+
+        const getPlaceResult = await axios.get('http://localhost:8000/check-place', {
+            params: {
+                placename: placeName,
+                placeid: placeId,
+                placelongitude: lng,
+                placelatitude: lat,
+                placecity: cityName
+            },
+        });
+        console.log(getPlaceResult.data);
+
+        const insertReviewResult = await axios.post('http://localhost:8000/add-review', {
             userid: userId,
             placeid: placeId,
-            review: review,
+            review: rating === 'Good' ? 1 : 0,
             reviewedat: created_at
-        };
-        let getPlaceResult = await getPlace(getPlaceUrl, placeId);
-        console.log(getPlaceResult);
-        console.log(getPlaceResult.length);
-        if(getPlaceResult.length === 0) {
-            await insertData(addPlaceUrl, placeBody);
-            await insertData(addReviewUrl, reviewBody);
-        } else {
-            await insertData(addReviewUrl, reviewBody);
-        }
-        window.alert("Succeessfully Reviewed");
+        })
+        console.log(insertReviewResult.data);
         mapRef.current.closePopup();
-        console.log("REVIEW SUCCESS ");
     };
-
-    async function getPlace(url, placeId) {
-        try {
-            url = url + "?placeid=" + placeId;
-            console.log(url);
-            const response = await fetch(url, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                }
-            });
-            return response.json();
-        } catch (e) {
-            console.log("Error in getPlace: ", e);
-            return null;
-        }
-    }
-
-    async function insertData(url, data) {
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
-            return response.json();
-        } catch (e) {
-            console.log("Error in inserting Data: ", e);
-            return null;
-        }
-    }
 
     window.scheduleMeeting = (placeId, lat, long) => {
         window.location.href = `/meeting/?placeID=${placeId}&lat=${lat}&long=${long}`
@@ -169,7 +114,6 @@ const MapComponent = () => {
         }).addTo(map);
 
         addHeatLayer(map);
-        // console.log(map);
         addPopupOnMap(map);
     };
 

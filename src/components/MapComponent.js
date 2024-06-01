@@ -3,7 +3,9 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.heat/dist/leaflet-heat.js';
 import axios from 'axios';
+import TopPlaces from './TopPlaces';
 import { useUserProfile } from '../contexts/UserContext';
+
 
 const MapComponent = () => {
     const userProfile = useUserProfile();
@@ -24,6 +26,42 @@ const MapComponent = () => {
         }
     };
 
+    function addPopupOnMap(map) {
+        // user making reviews
+        map.on('click', async function (e) {
+            const lat = e.latlng.lat;
+            const lng = ((e.latlng.lng + 180) % 360) - 180; // Correct the longitude
+            await showPopup(lat, lng, map);
+        });
+    }
+
+    async function showPopup(lat, lng, map) {
+        try {
+            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch data from Nominatim:', response.statusText);
+            }
+            const data = await response.json();
+
+            const placeId = data.place_id;
+            const placeName = data.name || data.display_name;
+            const cityName = data.address?.city || 'Not available';
+
+            L.popup()
+                .setLatLng([lat, lng])
+                .setContent(`
+                <div>
+                    <p>Location: ${placeName}</p>
+                    <button onclick="window.ratePlace('${userProfile.sub}', 'Good', ${lat}, ${lng}, ${placeId}, '${placeName}', '${cityName}')">Good</button>
+                    <button onclick="window.ratePlace('${userProfile.sub}', 'Not Good', ${lat}, ${lng}, ${placeId}, '${placeName}', '${cityName}')">Not Good</button>
+                    <button onclick="window.scheduleMeeting('${placeId}', ${lat}, ${lng})">Schedule Meetup</button>
+                </div>
+            `).openOn(map);
+        } catch (error) {
+            console.error('Error fetching and displaying popup:', error);
+        }
+    }
+
     async function fetchUserLocation() {
         // Fetch user's location based on IP, default to Bellevue if not found
         let userLat = 47.610378;
@@ -40,6 +78,19 @@ const MapComponent = () => {
 
         return {userLat, userLng};
     }
+
+    const moveToLocation = (lat, lng) => {
+        if (mapRef.current) {
+            mapRef.current.setView([lat, lng], 13);
+            showPopup(lat, lng, mapRef.current);
+        }
+    };
+
+    const listItems = [
+        { name: "Place 1", lat: 47.6205, lng: -122.3493 },
+        { name: "Place 2", lat: 47.6062, lng: -122.3321 },
+        { name: "Place 3", lat: 47.6097, lng: -122.3331 }
+    ];
 
     window.ratePlace = async (userId, rating, lat, lng, placeId, placeName, cityName) => {
         const created_at = new Date().toISOString() // Get UTC timestamp in ISO 8601 format
@@ -70,37 +121,6 @@ const MapComponent = () => {
         window.location.href = `/meeting/?placeID=${placeId}&lat=${lat}&long=${long}`
     }
 
-    function addPopupOnMap(map) {
-        // user making reviews
-        map.on('click', async function (e) {
-            const lat = e.latlng.lat;
-            let lng = e.latlng.lng;
-            lng = ((lng + 180) % 360) - 180; // Correct the longitude
-            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lng}`);
-            if (!response.ok) {
-                console.error('Failed to fetch data from Nominatim:', response.statusText);
-                return;
-            }
-            const data = await response.json();
-            // console.log(data);
-            const placeId = data.place_id;
-            const placeName = data.name || data.display_name;
-            const cityName = data.address?.city || 'Not available';
-
-            L.popup()
-                .setLatLng(e.latlng)
-                .setContent(`
-                    <div>
-                        <p>Location: ${placeName}</p>
-                        <button onclick="window.ratePlace('${userProfile.sub}', 'Good', ${lat}, ${lng}, ${placeId}, '${placeName}', '${cityName}')">Good</button>
-                        <button onclick="window.ratePlace('${userProfile.sub}', 'Not Good', ${lat}, ${lng}, ${placeId}, '${placeName}', '${cityName}')">Not Good</button>
-                        <button onclick="window.scheduleMeeting('${placeId}', '${lat}', '${lng}')">Schedule Meetup</button>
-                    </div>
-                `)
-                .openOn(map);
-        });
-    }
-
     const fetchLocationAndInitializeMap = async () => {
 
         let {userLat, userLng} = await fetchUserLocation();
@@ -128,9 +148,12 @@ const MapComponent = () => {
         }
     },  []);
 
-    return <div className="map-container">
-          <div ref={mapContainerRef} style={{ height: '100vh' }} id="map"></div>
-    </div>;
+    return (
+        <div className="map-container">
+            <div ref={mapContainerRef} style={{ height: '100vh' }} id="map"></div>
+            <TopPlaces items={listItems} onItemClick={moveToLocation}/>
+        </div>
+    );
 };
 
 export default MapComponent;

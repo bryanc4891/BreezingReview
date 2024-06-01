@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.heat/dist/leaflet-heat.js';
@@ -11,6 +11,7 @@ const MapComponent = () => {
     const userProfile = useUserProfile();
     const mapContainerRef = useRef(null);
     const mapRef = useRef(null);
+    const [userLocation, setUserLocation] = useState('Bellevue'); // default to Bellevue
 
     async function addHeatLayer(map) {
         const heatDataRes = await axios.get('http://localhost:8000/heatmap-data');
@@ -64,14 +65,14 @@ const MapComponent = () => {
 
     async function fetchUserLocation() {
         // Fetch user's location based on IP, default to Bellevue if not found
-        let userLat = 47.610378;
-        let userLng = -122.200676;
+        let userLat = 47.610378, userLng = -122.200676;
 
         try {
             const response = await axios.get('http://localhost:8000/geoinfo');
             const loc = response.data.loc.split(',');
             userLat = parseFloat(loc[0]);
             userLng = parseFloat(loc[1]);
+            setUserLocation(response.data.city);
         } catch (error) {
             console.error('Error fetching location from server:', error);
         }
@@ -123,7 +124,7 @@ const MapComponent = () => {
 
     const fetchLocationAndInitializeMap = async () => {
 
-        let {userLat, userLng} = await fetchUserLocation();
+        const {userLat, userLng} = await fetchUserLocation();
         const map = L.map(mapContainerRef.current, {
             center: [userLat, userLng],
             zoom: 13
@@ -151,7 +152,7 @@ const MapComponent = () => {
     return (
         <div className="map-container">
             <div ref={mapContainerRef} style={{ height: '100vh' }} id="map"></div>
-            <TopPlaces items={listItems} onItemClick={moveToLocation}/>
+            <TopPlaces items={listItems} userCity={userLocation} onItemClick={moveToLocation}/>
         </div>
     );
 };

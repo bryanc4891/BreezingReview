@@ -3,6 +3,7 @@ import PlaceIcon from '@mui/icons-material/Place';
 
 
 const TopPlaces = ({ items, userCity, onItemClick }) => {
+
     return (
         <div style={{
             maxWidth: 400,
@@ -13,8 +14,9 @@ const TopPlaces = ({ items, userCity, onItemClick }) => {
             bottom: 15,
             overflow: 'auto',
             borderRadius: 10,
-            boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            boxShadow: '2px',
+            backgroundColor: 'white',
+            opacity: 0.8,
             zIndex: 1000
         }}>
             <Typography variant="h6" style={{
@@ -25,7 +27,7 @@ const TopPlaces = ({ items, userCity, onItemClick }) => {
                 borderTopLeftRadius: 10,
                 borderTopRightRadius: 10
             }}>
-                {`Top Places in ${userCity}` || 'Top Places'}
+                {`Top Places in ${userCity}`}
             </Typography>
 
             <List component="nav" aria-label="main mailbox folders">

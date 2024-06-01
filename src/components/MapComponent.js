@@ -12,15 +12,15 @@ const MapComponent = () => {
     const mapContainerRef = useRef(null);
     const mapRef = useRef(null);
     const [userLocation, setUserLocation] = useState('Bellevue'); // default to Bellevue
+    const [userLocationIsLoading, setUserLocationIsLoading] = useState(true);
 
     async function addHeatLayer(map) {
         const heatDataRes = await axios.get('http://localhost:8000/heatmap-data');
         if (heatDataRes.data.statusCode === 200) {
-            // Add the heat layer to the map
             L.heatLayer(JSON.parse(heatDataRes.data.message.body), {
-                radius: 25,      // Radius of each “point” of the heatmap
-                blur: 15,        // Amount of blur
-                maxZoom: 18      // Zoom level at which the points reach maximum intensity
+                radius: 25,
+                blur: 15,
+                maxZoom: 18
             }).addTo(map);
         } else {
             console.log(heatDataRes.data)
@@ -66,7 +66,7 @@ const MapComponent = () => {
     async function fetchUserLocation() {
         // Fetch user's location based on IP, default to Bellevue if not found
         let userLat = 47.610378, userLng = -122.200676;
-
+        setUserLocationIsLoading(true);
         try {
             const response = await axios.get('http://localhost:8000/geoinfo');
             const loc = response.data.loc.split(',');
@@ -75,6 +75,8 @@ const MapComponent = () => {
             setUserLocation(response.data.city);
         } catch (error) {
             console.error('Error fetching location from server:', error);
+        } finally {
+            setUserLocationIsLoading(false);
         }
 
         return {userLat, userLng};
@@ -152,7 +154,7 @@ const MapComponent = () => {
     return (
         <div className="map-container">
             <div ref={mapContainerRef} style={{ height: '100vh' }} id="map"></div>
-            <TopPlaces items={listItems} userCity={userLocation} onItemClick={moveToLocation}/>
+            {!userLocationIsLoading && <TopPlaces items={listItems} userCity={userLocation} onItemClick={moveToLocation}/>}
         </div>
     );
 };

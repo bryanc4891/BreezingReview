@@ -6,7 +6,7 @@ const TopPlaces = ({ items, userCity, onItemClick }) => {
 
     return (
         <div style={{
-            maxWidth: 400,
+            maxWidth: 300,
             maxHeight: '80vh',
             position: 'absolute',
             left: 55,

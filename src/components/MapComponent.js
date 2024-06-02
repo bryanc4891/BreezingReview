@@ -11,8 +11,8 @@ const MapComponent = () => {
     const userProfile = useUserProfile();
     const mapContainerRef = useRef(null);
     const mapRef = useRef(null);
-    const [userLocation, setUserLocation] = useState('Bellevue'); // default to Bellevue
-    const [userLocationIsLoading, setUserLocationIsLoading] = useState(true);
+    const [CityTopPlaces, setCityTopPlaces] = useState({city: 'Bellevue', places: []}); // Default to Bellevue
+    const [topPlacesIsLoading, setTopPlacesIsLoading] = useState(true);
 
     async function addHeatLayer(map) {
         const heatDataRes = await axios.get('http://localhost:8000/heatmap-data');
@@ -66,17 +66,20 @@ const MapComponent = () => {
     async function fetchUserLocation() {
         // Fetch user's location based on IP, default to Bellevue if not found
         let userLat = 47.610378, userLng = -122.200676;
-        setUserLocationIsLoading(true);
+        setTopPlacesIsLoading(true);
         try {
             const response = await axios.get('http://localhost:8000/geoinfo');
+            const userCity = response.data.city;
             const loc = response.data.loc.split(',');
             userLat = parseFloat(loc[0]);
             userLng = parseFloat(loc[1]);
-            setUserLocation(response.data.city);
+
+            const topPlaces = await axios.get('http://localhost:8000/top-places', {params: {cityname: userCity}});
+            setCityTopPlaces({city: userCity, places: topPlaces.data.message});
         } catch (error) {
             console.error('Error fetching location from server:', error);
         } finally {
-            setUserLocationIsLoading(false);
+            setTopPlacesIsLoading(false);
         }
 
         return {userLat, userLng};
@@ -84,16 +87,10 @@ const MapComponent = () => {
 
     const moveToLocation = (lat, lng) => {
         if (mapRef.current) {
-            mapRef.current.setView([lat, lng], 13);
+            mapRef.current.setView([lat, lng], 15);
             showPopup(lat, lng, mapRef.current);
         }
     };
-
-    const listItems = [
-        { name: "Place 1", lat: 47.6205, lng: -122.3493 },
-        { name: "Place 2", lat: 47.6062, lng: -122.3321 },
-        { name: "Place 3", lat: 47.6097, lng: -122.3331 }
-    ];
 
     window.ratePlace = async (userId, rating, lat, lng, placeId, placeName, cityName) => {
         const created_at = new Date().toISOString() // Get UTC timestamp in ISO 8601 format
@@ -154,7 +151,7 @@ const MapComponent = () => {
     return (
         <div className="map-container">
             <div ref={mapContainerRef} style={{ height: '100vh' }} id="map"></div>
-            {!userLocationIsLoading && <TopPlaces items={listItems} userCity={userLocation} onItemClick={moveToLocation}/>}
+            {!topPlacesIsLoading && <TopPlaces items={CityTopPlaces.places} userCity={CityTopPlaces.city} onItemClick={moveToLocation}/>}
         </div>
     );
 };

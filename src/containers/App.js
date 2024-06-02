@@ -6,6 +6,7 @@ import '../styles/App.css';
 import configureAmplify from '../config/AmplifyConfig';
 import MapComponent from '../components/MapComponent';
 import UserSetting from '../components/UserSetting';
+import MeetingList from '../components/MeetingList';
 import { UserProfileProvider, useUserProfile } from '../contexts/UserContext';
 import { MeetingComponent } from '../components/MeetingComponent';
 
@@ -48,6 +49,7 @@ const AuthenticatedApp = ({ signOut }) => {
             <Routes>
                 <Route path="/" element={<MapComponent />}/>
                 <Route path="/meeting" element={<MeetingComponent />}/>
+                <Route path="/meetings" element={<MeetingList />}/>
             </Routes>
         </View>
     );

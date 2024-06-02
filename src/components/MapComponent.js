@@ -11,7 +11,7 @@ const MapComponent = () => {
     const userProfile = useUserProfile();
     const mapContainerRef = useRef(null);
     const mapRef = useRef(null);
-    const [CityTopPlaces, setCityTopPlaces] = useState({city: 'Bellevue', places: []});
+    const [CityTopPlaces, setCityTopPlaces] = useState({city: 'Bellevue', places: []}); // Default to Bellevue
     const [topPlacesIsLoading, setTopPlacesIsLoading] = useState(true);
 
     async function addHeatLayer(map) {

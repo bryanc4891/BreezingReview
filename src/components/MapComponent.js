@@ -87,7 +87,7 @@ const MapComponent = () => {
 
     const moveToLocation = (lat, lng) => {
         if (mapRef.current) {
-            mapRef.current.setView([lat, lng], 13);
+            mapRef.current.setView([lat, lng], 15);
             showPopup(lat, lng, mapRef.current);
         }
     };

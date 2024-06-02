@@ -7,7 +7,7 @@ const TopPlaces = ({ items, userCity, onItemClick }) => {
     return (
         <div style={{
             maxWidth: 300,
-            maxHeight: '80vh',
+            maxHeight: '76vh',
             position: 'absolute',
             left: 55,
             top: 15,
@@ -36,7 +36,10 @@ const TopPlaces = ({ items, userCity, onItemClick }) => {
                         <ListItemIcon>
                             <PlaceIcon/>
                         </ListItemIcon>
-                        <ListItemText primary={item[0]}/>
+                        <ListItemText primary={item[0]} style={{
+                            overflow: 'auto',
+                            whiteSpace: 'nowrap'
+                        }}/>
                     </ListItem>
                 ))}
             </List>

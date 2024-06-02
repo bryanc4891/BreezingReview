@@ -1,24 +1,35 @@
-const express = require('express');
-require('dotenv').config();
-const bodyParser = require('body-parser');
-const moment = require('moment');
-const cors = require('cors')
-const axios = require('axios')
+import express from 'express'
+import dotenv from 'dotenv'
+import path from 'path';
+import * as bodyParser from 'body-parser'
+import cors  from 'cors'
+import axios from 'axios';
+
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 const app = express();
 
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../build')));
+
+app.get(/^(?!\/api).+/, (req, res) => {
+    res.sendFile(path.join(__dirname, '../build/index.html'));
+})
+
+dotenv.config();
 
 app.use(express.urlencoded());
 
 app.use(cors());
 
-app.use(bodyParser.urlencoded({
-    extended: true
-  }));
+// app.use(bodyParser.urlencoded({
+//     extended: true
+//   }));
 
-app.post('/meeting', (req, res) => {
+app.post('/api/meeting', (req, res) => {
 
     axios.post(`${process.env.MEETUP_ENDPOINT}/prod/meetup/addMeetup`, 
         {
@@ -51,7 +62,7 @@ app.post('/meeting', (req, res) => {
     })    
 });
 
-app.post('/delete-user', async (req, res) => {
+app.post('/api/delete-user', async (req, res) => {
     const params = new URLSearchParams({userid: req.body.userid});
     try {
         const response = await axios.post(`${process.env.USER_ENDPOINT}/prod/user/deleteUser?${params.toString()}`, {}, {
@@ -69,7 +80,7 @@ app.post('/delete-user', async (req, res) => {
     }
 });
 
-app.post('/add-review', (req, res) => {
+app.post('/api/add-review', (req, res) => {
     axios.post(`${process.env.REVIEW_ENDPOINT}/prod/review/addReview`, req.body, {
         headers: {
             'x-api-key': process.env.API_KEY
@@ -88,11 +99,7 @@ app.post('/add-review', (req, res) => {
     });
 });
 
-app.get('/meeting', (req, res) => {
-    res.send("hello") ;
- });
-
-app.get('/check-place', (req, res) => {
+app.get('/api/check-place', (req, res) => {
     axios.get(`${process.env.PLACE_ENDPOINT}/prod/place/getPlace`, {
         params: {
             placeid: req.query.placeid
@@ -136,7 +143,7 @@ app.get('/check-place', (req, res) => {
     });
 });
 
-app.get('/heatmap-data', async (req, res) => {
+app.get('/api/heatmap-data', async (req, res) => {
     try {
         const response = await axios.get(`${process.env.REVIEW_ENDPOINT}/prod/review/getHeatmapData`, {
             headers: {
@@ -156,7 +163,7 @@ app.get('/heatmap-data', async (req, res) => {
     }
 });
 
-app.get('/geoinfo', async (req, res) => {
+app.get('/api/geoinfo', async (req, res) => {
     try {
         const response = await axios.get(`https://ipinfo.io/json?token=${process.env.IP_INFO_TOKEN}`);
         res.json(response.data);

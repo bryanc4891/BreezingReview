@@ -32,10 +32,11 @@
     "styled-components": "^6.1.11",
     "web-vitals": "^2.1.4"
   },
+  "type": "module",
   "scripts": {
     "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
     "start:frontend": "react-scripts start",
-    "start:backend": "nodemon src/api/src/server.js",
+    "start:backend": "nodemon api/src/server.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

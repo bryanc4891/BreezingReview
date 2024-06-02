@@ -32,11 +32,11 @@ const TopPlaces = ({ items, userCity, onItemClick }) => {
 
             <List component="nav" aria-label="main mailbox folders">
                 {items.map((item, index) => (
-                    <ListItem button key={index} onClick={() => onItemClick(item.lat, item.lng)}>
+                    <ListItem button key={index} onClick={() => onItemClick(item[1], item[2])}>
                         <ListItemIcon>
                             <PlaceIcon/>
                         </ListItemIcon>
-                        <ListItemText primary={item.name}/>
+                        <ListItemText primary={item[0]}/>
                     </ListItem>
                 ))}
             </List>

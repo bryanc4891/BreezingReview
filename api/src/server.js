@@ -156,6 +156,29 @@ app.get('/heatmap-data', async (req, res) => {
     }
 });
 
+app.get('/top-places', async (req, res) => {
+    try {
+        const response = await axios.get(`${process.env.PLACE_ENDPOINT}/prod/place/getTopPlaces`, {
+            params: {
+                cityname: req.query.cityname
+            },
+            headers: {
+                'x-api-key': process.env.API_KEY
+            }
+        })
+        res.send({
+            statusCode: 200,
+            message: response.data
+        });
+    } catch (error) {
+        console.error('Failed to fetch top places info:', error);
+        res.send({
+            statusCode: 500,
+            message: 'Failed to fetch top places info'
+        });
+    }
+});
+
 app.get('/geoinfo', async (req, res) => {
     try {
         const response = await axios.get(`https://ipinfo.io/json?token=${process.env.IP_INFO_TOKEN}`);

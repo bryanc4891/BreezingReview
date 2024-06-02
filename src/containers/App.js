@@ -9,6 +9,14 @@ import UserSetting from '../components/UserSetting';
 import MeetingList from '../components/MeetingList';
 import { UserProfileProvider, useUserProfile } from '../contexts/UserContext';
 import { MeetingComponent } from '../components/MeetingComponent';
+import AppBar from '@mui/material/AppBar';
+import Box from '@mui/material/Box';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+
 
 configureAmplify();
 
@@ -45,6 +53,15 @@ const AuthenticatedApp = ({ signOut }) => {
         <View className="App">
             <Heading level={3} className="custom-heading">Hello, {userProfile['custom:Username']}!</Heading>
             <UserSetting signOut={signOut} userProfile={userProfile} />
+            <Box>
+                <AppBar position="static">
+                    <Toolbar>
+                        <Typography href="/meetings" variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                            Meetings
+                        </Typography>
+                    </Toolbar>
+                </AppBar>
+            </Box>
 
             <Routes>
                 <Route path="/" element={<MapComponent />}/>

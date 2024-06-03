@@ -57,6 +57,9 @@ const AuthenticatedApp = ({ signOut }) => {
             <Box>
                 <AppBar sx={{ bgcolor: "white" }} position="static">
                     <Toolbar>
+                    <Button component={Link} to="/">
+                            Map
+                        </Button>
                         <Button component={Link} to="/meetings/">
                             Meetings
                         </Button>

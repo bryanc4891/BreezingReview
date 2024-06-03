@@ -42,7 +42,7 @@ export const MeetingComponent = () => {
         })
         .then(() => {
             setLoading(false) 
-            navigate('/')
+            navigate('/meetings')
         })
         .catch((error)=> {
             alert("Error: ", error);

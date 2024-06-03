@@ -2,6 +2,7 @@
   "name": "breezing_review",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8000/",
   "dependencies": {
     "@aws-amplify/ui-react": "^6.1.9",
     "@emotion/react": "^11.11.4",
@@ -35,7 +36,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
+    "start": "react-scripts start",
     "start:frontend": "react-scripts start",
     "start:backend": "nodemon api/src/server.js",
     "build": "react-scripts build",

@@ -33,7 +33,7 @@ const MapComponent = () => {
     }
 
     async function addHeatLayer(map) {
-        const heatDataRes = await axios.get('http://localhost:8000/heatmap-data');
+        const heatDataRes = await axios.get('/heatmap-data');
         if (heatDataRes.data.statusCode === 200) {
             L.heatLayer(JSON.parse(heatDataRes.data.message.body), {
                 radius: 25,
@@ -86,7 +86,7 @@ const MapComponent = () => {
         let userLat = 47.610378, userLng = -122.200676;
         setTopPlacesIsLoading(true);
         try {
-            const response = await axios.get('http://localhost:8000/geoinfo');
+            const response = await axios.get('/api/geoinfo');
             const userCity = response.data.city;
             const loc = response.data.loc.split(',');
             userLat = parseFloat(loc[0]);
@@ -114,7 +114,7 @@ const MapComponent = () => {
         const created_at = new Date().toISOString() // Get UTC timestamp in ISO 8601 format
         console.log(`User: ${userId}, Rating: ${rating}, City: ${cityName}, Place: ${placeName}, PlaceID: ${placeId}, Latitude: ${lat}, Longitude: ${lng}, CreatedAt: ${created_at}`);
 
-        const getPlaceResult = await axios.get('http://localhost:8000/check-place', {
+        const getPlaceResult = await axios.get('/api/check-place', {
             params: {
                 placename: placeName,
                 placeid: placeId,
@@ -125,7 +125,7 @@ const MapComponent = () => {
         });
         console.log(getPlaceResult.data);
 
-        const insertReviewResult = await axios.post('http://localhost:8000/add-review', {
+        const insertReviewResult = await axios.post('/api/add-review', {
             userid: userId,
             placeid: placeId,
             review: rating === 'Good' ? 1 : 0,

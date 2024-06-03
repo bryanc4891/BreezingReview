@@ -27,3 +27,6 @@ yarn-error.log*
 
 # env vars
 .env
+
+#build zip file
+ build.tar.gz

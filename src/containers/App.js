@@ -3,11 +3,11 @@ import { Route, Routes } from 'react-router-dom';
 import { Authenticator, View, Heading } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import '../styles/App.css';
-import configureAmplify from '../config/AmplifyConfig';
-import MapComponent from '../components/MapComponent';
-import UserSetting from '../components/UserSetting';
-import { UserProfileProvider, useUserProfile } from '../contexts/UserContext';
-import { MeetingComponent } from '../components/MeetingComponent';
+import configureAmplify from '../config/AmplifyConfig.js';
+import MapComponent from '../components/MapComponent.js';
+import UserSetting from '../components/UserSetting.js';
+import { UserProfileProvider, useUserProfile } from '../contexts/UserContext.js';
+import { MeetingComponent } from '../components/MeetingComponent.js';
 
 configureAmplify();
 

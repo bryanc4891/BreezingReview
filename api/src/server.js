@@ -19,11 +19,10 @@ app.use(bodyParser.urlencoded({
   }));
 
 app.post('/meeting', (req, res) => {
-
     axios.post(`${process.env.MEETUP_ENDPOINT}/prod/meetup/addMeetup`, 
         {
             organiserid : req.body.organiser,
-            placeid: req.body.place,
+            placeid: req.body.placeId,
             timeofmeeting: req.body.datetime,
             attendeeids: req.body.attendees
         }, {
@@ -31,16 +30,21 @@ app.post('/meeting', (req, res) => {
             'x-api-key': process.env.API_KEY
         }
     })
-    .then(response => {
-        console.log("data", response.data);
-        console.log(`${process.env.MEETUP_ENDPOINT}/prod/meetup/getMeetup?meetupId=${response.data}`);
-        axios.get(`${process.env.MEETUP_ENDPOINT}/prod/meetup/getMeetup?meetupId=${response.data}`, { 
-            headers: {
-                'x-api-key': process.env.API_KEY
-            }
-        })
+  .then(response => {
+    return axios.post(`${process.env.EMAIL_ENDPOINT}/prod/email/send`, {
+                placeName : req.body.placeName,
+                meetupId: response.data
+        }, {
+        headers: {
+            'x-api-key': process.env.API_KEY
+        }})
+  })
+  .then(response => {
+    return res.send({
+        message: 'Meetup scheduled successfully',
+        code: 200
     })
-    .then(response => console.log("get response", response))
+  })
     .catch((error) => {
         console.log(error)
         return res.send({

@@ -1,10 +1,10 @@
 import React from 'react';
 import { useUserProfile } from '../contexts/UserContext';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { TextField, Autocomplete, Button, Stack, Box } from '@mui/material';
+import { TextField, Autocomplete, Button, Stack, Box, CircularProgress } from '@mui/material';
 import axios from 'axios';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
@@ -14,37 +14,48 @@ import Checkbox from '@mui/material/Checkbox';
 
 export const MeetingComponent = () => {
 
-    const now = Date.now();
+    const navigate = useNavigate()
 
     const userProfile = useUserProfile();
     const [friends, setFriends] = React.useState([]);
+    const [loading, setLoading] = React.useState(false);
 
     const [formState, setFormState] = React.useState({
         organiser: userProfile,
-        place: null,
+        placeId: null,
+        placeName: null,
         datetime: null,
         attendees: null
     });
     const [searchParams, setSearchParams] = useSearchParams();
 
     const handleSubmit = (event) => {
+        setLoading(true);
         event.preventDefault();
             axios.post(`http://localhost:8000/meeting` , {
                 organiser: userProfile.sub,
-                place: formState?.place.place_id,
+                placeId: formState?.placeId,
+                placeName: formState?.placeName,
                 datetime: formState.datetime,
                 attendees: formState?.attendees.map(value => value[0]).join(',')
             }, {
         })
-        .then(response => console.log(response))
-        .catch((error)=> console.log(error));
+        .then(() => {
+            setLoading(false) 
+            navigate('/')
+        })
+        .catch((error)=> {
+            alert("Error: ", error);
+            console.log(error)
+        })
     }
 
     const handleChange = (event) => {
         const {name, value} = event.target;
         setFormState((prevState) => ({
             ...prevState,
-            place: value
+            placeId: value.place_id,
+            placeName: value.display_name
         }));
     }
 
@@ -55,7 +66,8 @@ export const MeetingComponent = () => {
             setFormState((prevState) => {
                 return {
                     ...prevState,
-                    place: data
+                    placeId: data.place_id,
+                    placeName: data.display_name
                 }
             });
         })
@@ -65,6 +77,7 @@ export const MeetingComponent = () => {
     React.useEffect(() => {
         axios.get(`http://localhost:8000/users/${userProfile.sub}`)
         .then((response) => {
+            console.log('response', response);
             setFriends(response.data.data);
         })
         .catch(error => console.log('error getting friends', error));
@@ -88,13 +101,15 @@ export const MeetingComponent = () => {
         <h1>Schedule a Meeting</h1>
       <LocalizationProvider dateAdapter={AdapterMoment}>
             <TextField 
-                value={ formState.place?.display_name ?? 'Please enter a location'} 
+                value={ formState.placeName ?? 'Please enter a location'} 
                 id="location_field" 
                 onChange={handleChange}
+                disabled={loading}
                 />
             <DateTimePicker 
                 label="Choose a date and time" 
                 name="datetime"
+                disabled={loading}
                 value={formState.value}
                 onChange={(value) => {
                     setFormState((prevState) => {
@@ -104,19 +119,6 @@ export const MeetingComponent = () => {
                         }
                     })
                 }}
-                // onChange={(newDate) => {
-                //     // setFormState((prevState) => {
-                //     //     ...prevState,
-                //     //     datetime: value
-                //     // })
-                //     setFormState((prevState) => {
-                //        return {
-                //             ...prevState,
-                //         datetime: newDate
-                //     }
-                //     })
-                // }}
-                // onChange={(newValue) => setSelectedDateTime(newValue)}
                 slotProps={{
                     textField: {
                         id: 'datetime_field'
@@ -124,6 +126,7 @@ export const MeetingComponent = () => {
                 }}
                 />
             <Autocomplete
+                disabled={loading}
                 multiple
                 disablePortal
                 id="attendees_field"
@@ -131,7 +134,6 @@ export const MeetingComponent = () => {
                 name="attendees"
                 renderInput={(params) => <TextField {...params} label="Attendees" />}
                 onChange={handleAutoCompleteSelect}
-                // isOptionEqualToValue={(option, value) => option.value === value.value }
                 disableCloseOnSelect
                 getOptionLabel={(option) => option[1]}
                 renderOption={(props, option, { selected }) => (
@@ -146,7 +148,12 @@ export const MeetingComponent = () => {
                     </li>
                 )}
                 />
-                <Button type="submit" variant="contained">Schedule Meeting</Button>
+                <Button type="submit" variant="contained"  disabled={loading}>Schedule Meeting</Button>
+                {loading && (
+                    <Box ml={2}>
+                        <CircularProgress size={24} />
+                    </Box>
+                )}
         </LocalizationProvider>
         </Stack>
 

@@ -1,10 +1,11 @@
 import React from 'react';
 import { useUserProfile } from '../contexts/UserContext';
 import { useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
-import { TextField, Autocomplete, Button, Stack, Box } from '@mui/material';
+import { TextField, Autocomplete, Button, Stack, Box, CircularProgress } from '@mui/material';
 import axios from 'axios';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
@@ -14,10 +15,13 @@ import Checkbox from '@mui/material/Checkbox';
 
 export const MeetingComponent = () => {
 
+    const navigate = useNavigate()
+
     // const now = Date.now();
 
     const userProfile = useUserProfile();
     const [friends, setFriends] = React.useState([]);
+    const [loading, setLoading] = React.useState(false);
 
     const [formState, setFormState] = React.useState({
         organiser: userProfile,
@@ -29,6 +33,7 @@ export const MeetingComponent = () => {
     const [searchParams, setSearchParams] = useSearchParams();
 
     const handleSubmit = (event) => {
+        setLoading(true);
         event.preventDefault();
             axios.post(`http://localhost:8000/meeting` , {
                 organiser: userProfile.sub,
@@ -38,8 +43,13 @@ export const MeetingComponent = () => {
                 attendees: formState?.attendees.map(value => value[0]).join(',')
             }, {
         })
-        .then(response => console.log(response))
-        .catch((error)=> console.log(error));
+        .then((response) => {
+            setLoading(false) 
+            console.log(response)
+        })
+        .catch((error)=> console.log(error))
+        .finally( navigate('/'));
+
     }
 
     const handleChange = (event) => {
@@ -55,9 +65,11 @@ export const MeetingComponent = () => {
         .then((response) => response.data)
         .then((data) => {
             setFormState((prevState) => {
+                console.log("data", data);
                 return {
                     ...prevState,
-                    place: data
+                    placeId: data.place_id,
+                    placeName: data.display_name
                 }
             });
         })
@@ -90,14 +102,16 @@ export const MeetingComponent = () => {
         <h1>Schedule a Meeting</h1>
       <LocalizationProvider dateAdapter={AdapterMoment}>
             <TextField 
-                value={ formState.place?.display_name ?? 'Please enter a location'} 
+                value={ formState.placeName ?? 'Please enter a location'} 
                 id="location_field" 
                 onChange={handleChange}
+                disabled={loading}
                 />
             <DateTimePicker 
                 label="Choose a date and time" 
                 name="datetime"
                 value={formState.value}
+                disabled={loading}
                 onChange={(value) => {
                     setFormState((prevState) => {
                         return {
@@ -131,6 +145,7 @@ export const MeetingComponent = () => {
                 id="attendees_field"
                 options={friends}
                 name="attendees"
+                disabled={loading}
                 renderInput={(params) => <TextField {...params} label="Attendees" />}
                 onChange={handleAutoCompleteSelect}
                 // isOptionEqualToValue={(option, value) => option.value === value.value }
@@ -148,7 +163,12 @@ export const MeetingComponent = () => {
                     </li>
                 )}
                 />
-                <Button type="submit" variant="contained">Schedule Meeting</Button>
+                <Button type="submit" variant="contained"  disabled={loading}>Schedule Meeting</Button>
+                {loading && (
+                    <Box ml={2}>
+                        <CircularProgress size={24} />
+                    </Box>
+                )}
         </LocalizationProvider>
         </Stack>
 

@@ -46,7 +46,7 @@ const MapComponent = () => {
 
             const placeId = data.place_id;
             const placeName = data.name || data.display_name;
-            const cityName = data.address?.city || 'Not available';
+            const cityName = data.address?.city || data.address?.town || 'Not available';
 
             L.popup()
                 .setLatLng([lat, lng])

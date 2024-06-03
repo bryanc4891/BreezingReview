@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
+import { OpenStreetMapProvider, GeoSearchControl } from 'leaflet-geosearch';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet-defaulticon-compatibility';
 import 'leaflet.heat/dist/leaflet-heat.js';
+import 'leaflet-geosearch/dist/geosearch.css';
 import axios from 'axios';
 import TopPlaces from './TopPlaces';
 import { useUserProfile } from '../contexts/UserContext';
@@ -13,6 +16,21 @@ const MapComponent = () => {
     const mapRef = useRef(null);
     const [CityTopPlaces, setCityTopPlaces] = useState({city: 'Bellevue', places: []}); // Default to Bellevue
     const [topPlacesIsLoading, setTopPlacesIsLoading] = useState(true);
+
+    function addLocationSearch(map) {
+        // use OSM as provider
+        const provider = new OpenStreetMapProvider();
+        const searchControl = new GeoSearchControl({
+            provider: provider,
+            style: 'bar',
+            autoComplete: true,
+            showPopup: true,
+            autoClose: true,
+            searchLabel: 'Enter address',
+            keepResult: true
+        });
+        map.addControl(searchControl);
+    }
 
     async function addHeatLayer(map) {
         const heatDataRes = await axios.get('http://localhost:8000/heatmap-data');
@@ -133,6 +151,7 @@ const MapComponent = () => {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
+        addLocationSearch(map);
         addHeatLayer(map);
         addPopupOnMap(map);
     };

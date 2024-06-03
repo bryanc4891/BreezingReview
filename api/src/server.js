@@ -19,28 +19,45 @@ app.use(bodyParser.urlencoded({
   }));
 
 app.post('/meeting', (req, res) => {
+    console.log("request body",  {
+        organiserid : req.body.organiser,
+        placeid: req.body.placeId,
+        timeofmeeting: req.body.datetime,
+        attendeeids: req.body.attendees
+    });
 
     axios.post(`${process.env.MEETUP_ENDPOINT}/prod/meetup/addMeetup`, 
         {
-            organiserid : req.body.organiser,
-            placeid: req.body.place,
-            timeofmeeting: req.body.datetime,
-            attendeeids: req.body.attendees
+            "organiserid" : req.body.organiser,
+            "placeid": req.body.place,
+            "timeofmeeting": req.body.datetime,
+            "attendeeids": req.body.attendees
         }, {
         headers: {
             'x-api-key': process.env.API_KEY
         }
     })
-    .then(response => {
-        console.log("data", response.data);
-        console.log(`${process.env.MEETUP_ENDPOINT}/prod/meetup/getMeetup?meetupId=${response.data}`);
-        axios.get(`${process.env.MEETUP_ENDPOINT}/prod/meetup/getMeetup?meetupId=${response.data}`, { 
-            headers: {
-                'x-api-key': process.env.API_KEY
-            }
+    // .then(response => {
+    //     console.log("meetup added", {
+    //         placeName : req.body.placeName,
+    //         meetupId: response.data
+    // });
+    //     return axios.post(`${process.env.EMAIL_ENDPOINT}/prod/email/send`, {
+    //             placeName : req.body.placeName,
+    //             meetupId: response.data
+    //     }, {
+    //     headers: {
+    //         'x-api-key': process.env.API_KEY
+    //     }})
+    // })
+    .then((response) => {
+        console.log("success");
+        return res.send({
+            code: 200,
+            message: 'Meetup scheduled successfully',
+            data: response.data
         })
     })
-    .then(response => console.log("get response", response))
     .catch((error) => {
         console.log(error)
         return res.send({

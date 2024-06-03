@@ -34,7 +34,7 @@ export const MeetingComponent = () => {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-            axios.post(`http://localhost:8000/meeting` , {
+            axios.post(`/api/meeting` , {
                 organiser: userProfile.sub,
                 place: formState?.place.place_id,
                 datetime: formState.datetime,

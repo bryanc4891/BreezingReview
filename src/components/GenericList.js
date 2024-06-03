@@ -1,34 +1,45 @@
-import React from 'react';
-import { useUserProfile } from '../contexts/UserContext';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import CommentIcon from '@mui/icons-material/Comment';
-import IconButton from '@mui/material/IconButton';
-import { Stack } from '@mui/material';
+import React, {useEffect, useState} from 'react';
+import { DataGrid } from '@mui/x-data-grid';
 
 const GenericList = ({items, title, renderItem}) => {
     items.forEach(item => console.log(item));
+    const columns = [
+        { field: 'attendees', headerName: 'Attendees List', width: 300
+        },
+        {
+            field: 'place',
+            headerName: 'Place name',
+            width: 150,
+            editable: false,
+        },
+        {
+            field: 'time',
+            headerName: 'Time of Meeting',
+            width: 150,
+            editable: false,
+        }
+    ];
+    const rows = [
+        { id:1, attendees: ["AGAM", "MICH"], place: 'SEAATTLE', time: "TODAY" },
+        { id:2, attendees: ["AGAM", "Dariya"], place: 'Tacoma', time: "TOM" },
+        { id:3, attendees: ["Bryan", "MICH"], place: 'US', time: "TODAY" },
+        { id:4, attendees: ["DARIYA","Bryan", "MICH"], place: 'CALIFORNIA', time: "TODAY" }
+    ];
     return (
-        <Stack spacing={4} sx={{width: '600px;', margin: 'auto'}}>
-            {/* <h2>{{title}}</h2> */}
-        <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-        {items.map((value) => (
-            <ListItem
-             key={value}
-             disableGutters
-             secondaryAction={
-                 <IconButton aria-label="comment">
-                    <CommentIcon />
-                 </IconButton>
-             }>
-             <ListItemText primary={`Line item ${value.name}`} />
-            {/* {renderItem ? renderItem(item) : <ListItemText primary={item} />} */}
+        <div style={{height: 400, width: '100%'}}>
+            <DataGrid
+                rows={rows}
+                columns={columns}
+                initialState={{
+                    pagination: {
+                        paginationModel: {page: 0, pageSize: 5},
+                    },
+                }}
+                pageSizeOptions={[5, 10]}
+                disableRowSelectionOnClick
+            />
+        </div>
 
-            </ListItem>
-        ))}
-        </List>
-        </Stack>
     )
 }
 

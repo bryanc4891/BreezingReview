@@ -1,5 +1,6 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { Link } from 'react-router-dom'
 import { Authenticator, View, Heading } from '@aws-amplify/ui-react';
 import '@aws-amplify/ui-react/styles.css';
 import '../styles/App.css';
@@ -54,11 +55,11 @@ const AuthenticatedApp = ({ signOut }) => {
             <Heading level={3} className="custom-heading">Hello, {userProfile['custom:Username']}!</Heading>
             <UserSetting signOut={signOut} userProfile={userProfile} />
             <Box>
-                <AppBar position="static">
+                <AppBar sx={{ bgcolor: "white" }} position="static">
                     <Toolbar>
-                        <Typography href="/meetings" variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                        <Button component={Link} to="/meetings/">
                             Meetings
-                        </Typography>
+                        </Button>
                     </Toolbar>
                 </AppBar>
             </Box>

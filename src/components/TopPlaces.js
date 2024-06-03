@@ -7,7 +7,7 @@ const TopPlaces = ({ items, userCity, onItemClick }) => {
     return (
         <div style={{
             maxWidth: 300,
-            maxHeight: '80vh',
+            maxHeight: '76vh',
             position: 'absolute',
             left: 55,
             top: 15,
@@ -32,11 +32,14 @@ const TopPlaces = ({ items, userCity, onItemClick }) => {
 
             <List component="nav" aria-label="main mailbox folders">
                 {items.map((item, index) => (
-                    <ListItem button key={index} onClick={() => onItemClick(item.lat, item.lng)}>
+                    <ListItem button key={index} onClick={() => onItemClick(item[1], item[2])}>
                         <ListItemIcon>
                             <PlaceIcon/>
                         </ListItemIcon>
-                        <ListItemText primary={item.name}/>
+                        <ListItemText primary={item[0]} style={{
+                            overflow: 'auto',
+                            whiteSpace: 'nowrap'
+                        }}/>
                     </ListItem>
                 ))}
             </List>

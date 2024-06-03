@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
+import { OpenStreetMapProvider, GeoSearchControl } from 'leaflet-geosearch';
 import 'leaflet/dist/leaflet.css';
-import 'leaflet.heat/dist/leaflet-heat';
+import 'leaflet-defaulticon-compatibility';
+import 'leaflet.heat/dist/leaflet-heat.js';
+import 'leaflet-geosearch/dist/geosearch.css';
 import axios from 'axios';
 import TopPlaces from './TopPlaces';
 import { useUserProfile } from '../contexts/UserContext';
@@ -11,8 +14,23 @@ const MapComponent = () => {
     const userProfile = useUserProfile();
     const mapContainerRef = useRef(null);
     const mapRef = useRef(null);
-    const [userLocation, setUserLocation] = useState('Bellevue'); // default to Bellevue
-    const [userLocationIsLoading, setUserLocationIsLoading] = useState(true);
+    const [CityTopPlaces, setCityTopPlaces] = useState({city: 'Bellevue', places: []}); // Default to Bellevue
+    const [topPlacesIsLoading, setTopPlacesIsLoading] = useState(true);
+
+    function addLocationSearch(map) {
+        // use OSM as provider
+        const provider = new OpenStreetMapProvider();
+        const searchControl = new GeoSearchControl({
+            provider: provider,
+            style: 'bar',
+            autoComplete: true,
+            showPopup: true,
+            autoClose: true,
+            searchLabel: 'Enter address',
+            keepResult: true
+        });
+        map.addControl(searchControl);
+    }
 
     async function addHeatLayer(map) {
         const heatDataRes = await axios.get('/heatmap-data');
@@ -46,7 +64,7 @@ const MapComponent = () => {
 
             const placeId = data.place_id;
             const placeName = data.name || data.display_name;
-            const cityName = data.address?.city || 'Not available';
+            const cityName = data.address?.city || data.address?.town || 'Not available';
 
             L.popup()
                 .setLatLng([lat, lng])
@@ -66,17 +84,20 @@ const MapComponent = () => {
     async function fetchUserLocation() {
         // Fetch user's location based on IP, default to Bellevue if not found
         let userLat = 47.610378, userLng = -122.200676;
-        setUserLocationIsLoading(true);
+        setTopPlacesIsLoading(true);
         try {
             const response = await axios.get('/api/geoinfo');
+            const userCity = response.data.city;
             const loc = response.data.loc.split(',');
             userLat = parseFloat(loc[0]);
             userLng = parseFloat(loc[1]);
-            setUserLocation(response.data.city);
+
+            const topPlaces = await axios.get('http://localhost:8000/top-places', {params: {cityname: userCity}});
+            setCityTopPlaces({city: userCity, places: topPlaces.data.message});
         } catch (error) {
             console.error('Error fetching location from server:', error);
         } finally {
-            setUserLocationIsLoading(false);
+            setTopPlacesIsLoading(false);
         }
 
         return {userLat, userLng};
@@ -84,16 +105,10 @@ const MapComponent = () => {
 
     const moveToLocation = (lat, lng) => {
         if (mapRef.current) {
-            mapRef.current.setView([lat, lng], 13);
+            mapRef.current.setView([lat, lng], 15);
             showPopup(lat, lng, mapRef.current);
         }
     };
-
-    const listItems = [
-        { name: "Place 1", lat: 47.6205, lng: -122.3493 },
-        { name: "Place 2", lat: 47.6062, lng: -122.3321 },
-        { name: "Place 3", lat: 47.6097, lng: -122.3331 }
-    ];
 
     window.ratePlace = async (userId, rating, lat, lng, placeId, placeName, cityName) => {
         const created_at = new Date().toISOString() // Get UTC timestamp in ISO 8601 format
@@ -136,6 +151,7 @@ const MapComponent = () => {
             attribution: '© OpenStreetMap contributors'
         }).addTo(map);
 
+        addLocationSearch(map);
         addHeatLayer(map);
         addPopupOnMap(map);
     };
@@ -154,7 +170,7 @@ const MapComponent = () => {
     return (
         <div className="map-container">
             <div ref={mapContainerRef} style={{ height: '100vh' }} id="map"></div>
-            {!userLocationIsLoading && <TopPlaces items={listItems} userCity={userLocation} onItemClick={moveToLocation}/>}
+            {!topPlacesIsLoading && <TopPlaces items={CityTopPlaces.places} userCity={CityTopPlaces.city} onItemClick={moveToLocation}/>}
         </div>
     );
 };

@@ -19,11 +19,10 @@ app.use(bodyParser.urlencoded({
   }));
 
 app.post('/meeting', (req, res) => {
-
     axios.post(`${process.env.MEETUP_ENDPOINT}/prod/meetup/addMeetup`, 
         {
             organiserid : req.body.organiser,
-            placeid: req.body.place,
+            placeid: req.body.placeId,
             timeofmeeting: req.body.datetime,
             attendeeids: req.body.attendees
         }, {
@@ -31,16 +30,21 @@ app.post('/meeting', (req, res) => {
             'x-api-key': process.env.API_KEY
         }
     })
-    .then(response => {
-        console.log("data", response.data);
-        console.log(`${process.env.MEETUP_ENDPOINT}/prod/meetup/getMeetup?meetupId=${response.data}`);
-        axios.get(`${process.env.MEETUP_ENDPOINT}/prod/meetup/getMeetup?meetupId=${response.data}`, { 
-            headers: {
-                'x-api-key': process.env.API_KEY
-            }
-        })
+  .then(response => {
+    return axios.post(`${process.env.EMAIL_ENDPOINT}/prod/email/send`, {
+                placeName : req.body.placeName,
+                meetupId: response.data
+        }, {
+        headers: {
+            'x-api-key': process.env.API_KEY
+        }})
+  })
+  .then(response => {
+    return res.send({
+        message: 'Meetup scheduled successfully',
+        code: 200
     })
-    .then(response => console.log("get response", response))
+  })
     .catch((error) => {
         console.log(error)
         return res.send({
@@ -136,6 +140,26 @@ app.get('/check-place', (req, res) => {
     });
 });
 
+app.get('/users/:userId', async (req, res) => {
+    try {
+        const response = await axios.get(`${process.env.USER_ENDPOINT}/prod/user/getUsers?userId=${req.params.userId}`, {
+            headers: {
+                'x-api-key': process.env.API_KEY
+            }
+        })
+        res.send({
+            statusCode: 200,
+            data: response.data
+        });
+    } catch (error) {
+        console.error('Failed to fetch IP info:', error);
+        res.send({
+            statusCode: 500,
+            message: 'Failed fetch users'
+        });
+    }
+})
+
 app.get('/heatmap-data', async (req, res) => {
     try {
         const response = await axios.get(`${process.env.REVIEW_ENDPOINT}/prod/review/getHeatmapData`, {
@@ -152,6 +176,29 @@ app.get('/heatmap-data', async (req, res) => {
         res.send({
             statusCode: 500,
             message: 'Failed fetch reviews'
+        });
+    }
+});
+
+app.get('/top-places', async (req, res) => {
+    try {
+        const response = await axios.get(`${process.env.PLACE_ENDPOINT}/prod/place/getTopPlaces`, {
+            params: {
+                cityname: req.query.cityname
+            },
+            headers: {
+                'x-api-key': process.env.API_KEY
+            }
+        })
+        res.send({
+            statusCode: 200,
+            message: response.data
+        });
+    } catch (error) {
+        console.error('Failed to fetch top places info:', error);
+        res.send({
+            statusCode: 500,
+            message: 'Failed to fetch top places info'
         });
     }
 });

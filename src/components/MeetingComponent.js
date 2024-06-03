@@ -35,6 +35,7 @@ export const MeetingComponent = () => {
     const handleSubmit = (event) => {
         setLoading(true);
         event.preventDefault();
+        console.log("formState", formState);
             axios.post(`http://localhost:8000/meeting` , {
                 organiser: userProfile.sub,
                 placeId: formState?.placeId,
@@ -48,7 +49,7 @@ export const MeetingComponent = () => {
             console.log(response)
         })
         .catch((error)=> console.log(error))
-        .finally( navigate('/'));
+        // .finally( navigate('/'));
 
     }
 

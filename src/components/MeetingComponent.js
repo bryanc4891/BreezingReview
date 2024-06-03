@@ -30,6 +30,7 @@ export const MeetingComponent = () => {
     const [searchParams, setSearchParams] = useSearchParams();
 
     const handleSubmit = (event) => {
+        console.log('user', userProfile.sub);
         setLoading(true);
         event.preventDefault();
             axios.post(`http://localhost:8000/meeting` , {
@@ -42,7 +43,7 @@ export const MeetingComponent = () => {
         })
         .then(() => {
             setLoading(false) 
-            navigate('/')
+            navigate('/meetings')
         })
         .catch((error)=> {
             alert("Error: ", error);

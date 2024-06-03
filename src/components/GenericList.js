@@ -2,7 +2,6 @@ import React, {useEffect, useState} from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 
 const GenericList = ({items, title, renderItem}) => {
-    items.forEach(item => console.log(item));
     const columns = [
         { field: 'attendees', headerName: 'Attendees List', width: 300
         },
@@ -18,15 +17,16 @@ const GenericList = ({items, title, renderItem}) => {
             width: 150,
             editable: false,
         }
-    ];
-    const rows = [
-        { id:1, attendees: ["AGAM", "MICH"], place: 'SEAATTLE', time: "TODAY" },
-        { id:2, attendees: ["AGAM", "Dariya"], place: 'Tacoma', time: "TOM" },
-        { id:3, attendees: ["Bryan", "MICH"], place: 'US', time: "TODAY" },
-        { id:4, attendees: ["DARIYA","Bryan", "MICH"], place: 'CALIFORNIA', time: "TODAY" }
-    ];
+    ];    
+
+    console.log('items', items);
+
+    const rows = items.map(item => {
+        return {id: item[0],time: item[1], attendees: item[2], place: item[3]}
+    });
+    
     return (
-        <div style={{height: 400, width: '100%'}}>
+       <div style={{height: 400, width: '100%'}}>
             <DataGrid
                 rows={rows}
                 columns={columns}
@@ -39,7 +39,6 @@ const GenericList = ({items, title, renderItem}) => {
                 disableRowSelectionOnClick
             />
         </div>
-
     )
 }
 

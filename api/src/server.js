@@ -223,6 +223,7 @@ app.get('/get-meetings/:userId', async (req, res) => {
                 'x-api-key': process.env.API_KEY
             }
         });
+        console.log("response", response);
         res.send({
             statusCode: 200,
             message: response.data
@@ -231,7 +232,7 @@ app.get('/get-meetings/:userId', async (req, res) => {
         console.error('Failed to fetch Meetings List :', error);
         res.json({
             statusCode: 500,
-            message: 'Failed to fetch meetings List' });
+            message: [] });
     }
 });
 

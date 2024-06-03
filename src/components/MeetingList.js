@@ -57,7 +57,7 @@ const MeetingComponent = () => {
 
       return (
         <div className="meetings-container">
-            {!meetingsListLoading && <GenericList items={meetingsList} title={title} renderItems={renderComplexItem} />}
+            {!meetingsListLoading && <GenericList items={meetingsList} />}
         </div>
       )
 

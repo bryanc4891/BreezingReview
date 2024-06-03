@@ -19,8 +19,6 @@ const GenericList = ({items, title, renderItem}) => {
         }
     ];    
 
-    console.log('items', items);
-
     const rows = items.map(item => {
         return {id: item[0],time: item[1], attendees: item[2], place: item[3]}
     });

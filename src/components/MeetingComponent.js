@@ -30,7 +30,6 @@ export const MeetingComponent = () => {
     const [searchParams, setSearchParams] = useSearchParams();
 
     const handleSubmit = (event) => {
-        console.log('user', userProfile.sub);
         setLoading(true);
         event.preventDefault();
             axios.post(`http://localhost:8000/meeting` , {

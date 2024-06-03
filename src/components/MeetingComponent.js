@@ -17,6 +17,8 @@ export const MeetingComponent = () => {
     const now = Date.now();
 
     const userProfile = useUserProfile();
+    console.log("userProfile", userProfile);
+    const [friends, setFriends] = React.useState([]);
 
     const [formState, setFormState] = React.useState({
         organiser: userProfile,
@@ -26,11 +28,11 @@ export const MeetingComponent = () => {
     });
     const [searchParams, setSearchParams] = useSearchParams();
 
-    const friends = [
-        {name: "agam", id: "28e10380-c071-7064-a3bb-11a78a0df5bc"},
-        {name: "Bryan", id: "284113a0-70f1-7045-755a-eda39a7772b9"},
-        {name: "Mike", id: "c85193e0-20c1-7071-ea4c-46902b75ef06"}
-    ]
+    // const friends = [
+    //     {name: "agam", id: "28e10380-c071-7064-a3bb-11a78a0df5bc"},
+    //     {name: "Bryan", id: "284113a0-70f1-7045-755a-eda39a7772b9"},
+    //     {name: "Mike", id: "c85193e0-20c1-7071-ea4c-46902b75ef06"}
+    // ]
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -68,7 +70,17 @@ export const MeetingComponent = () => {
         .catch((error) => console.log(error));
        }, []);
 
+    React.useEffect(() => {
+        console.log("user", userProfile.sub);
+        axios.get(`http://localhost:8000/users/${userProfile.sub}`)
+        .then((response) => {
+            setFriends(response.data.data);
+        })
+        .catch(error => console.log('error getting friends', error));
+    }, [])
+
     const handleAutoCompleteSelect = (event, value) => {
+        console.log('value', value);
         setFormState((prevState) => {
             return {
                 ...prevState,
@@ -131,7 +143,7 @@ export const MeetingComponent = () => {
                 onChange={handleAutoCompleteSelect}
                 // isOptionEqualToValue={(option, value) => option.value === value.value }
                 disableCloseOnSelect
-                getOptionLabel={(option) => option.name}
+                getOptionLabel={(option) => option[1]}
                 renderOption={(props, option, { selected }) => (
                     <li {...props}>
                     <Checkbox
@@ -140,7 +152,7 @@ export const MeetingComponent = () => {
                         style={{ marginRight: 8 }}
                         checked={selected}
                     />
-                    {option.name}
+                    {option[1]}
                     </li>
                 )}
                 />

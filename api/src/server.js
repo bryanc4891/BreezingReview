@@ -136,6 +136,26 @@ app.get('/check-place', (req, res) => {
     });
 });
 
+app.get('/users/:userId', async (req, res) => {
+    try {
+        const response = await axios.get(`${process.env.USER_ENDPOINT}/prod/user/getUsers?userId=${req.params.userId}`, {
+            headers: {
+                'x-api-key': process.env.API_KEY
+            }
+        })
+        res.send({
+            statusCode: 200,
+            data: response.data
+        });
+    } catch (error) {
+        console.error('Failed to fetch IP info:', error);
+        res.send({
+            statusCode: 500,
+            message: 'Failed fetch users'
+        });
+    }
+})
+
 app.get('/heatmap-data', async (req, res) => {
     try {
         const response = await axios.get(`${process.env.REVIEW_ENDPOINT}/prod/review/getHeatmapData`, {

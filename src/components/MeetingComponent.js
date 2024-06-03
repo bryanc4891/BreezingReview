@@ -17,7 +17,6 @@ export const MeetingComponent = () => {
     const now = Date.now();
 
     const userProfile = useUserProfile();
-    console.log("userProfile", userProfile);
     const [friends, setFriends] = React.useState([]);
 
     const [formState, setFormState] = React.useState({
@@ -28,19 +27,13 @@ export const MeetingComponent = () => {
     });
     const [searchParams, setSearchParams] = useSearchParams();
 
-    // const friends = [
-    //     {name: "agam", id: "28e10380-c071-7064-a3bb-11a78a0df5bc"},
-    //     {name: "Bryan", id: "284113a0-70f1-7045-755a-eda39a7772b9"},
-    //     {name: "Mike", id: "c85193e0-20c1-7071-ea4c-46902b75ef06"}
-    // ]
-
     const handleSubmit = (event) => {
         event.preventDefault();
             axios.post(`http://localhost:8000/meeting` , {
                 organiser: userProfile.sub,
                 place: formState?.place.place_id,
                 datetime: formState.datetime,
-                attendees: formState?.attendees.map(value => value.id).join(',')
+                attendees: formState?.attendees.map(value => value[0]).join(',')
             }, {
         })
         .then(response => console.log(response))
@@ -60,7 +53,6 @@ export const MeetingComponent = () => {
         .then((response) => response.data)
         .then((data) => {
             setFormState((prevState) => {
-                console.log("data", data);
                 return {
                     ...prevState,
                     place: data
@@ -71,7 +63,6 @@ export const MeetingComponent = () => {
        }, []);
 
     React.useEffect(() => {
-        console.log("user", userProfile.sub);
         axios.get(`http://localhost:8000/users/${userProfile.sub}`)
         .then((response) => {
             setFriends(response.data.data);
@@ -80,7 +71,6 @@ export const MeetingComponent = () => {
     }, [])
 
     const handleAutoCompleteSelect = (event, value) => {
-        console.log('value', value);
         setFormState((prevState) => {
             return {
                 ...prevState,

@@ -63,7 +63,6 @@ export const MeetingComponent = () => {
         axios.get(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${searchParams.get('lat')}&lon=${searchParams.get('long')}`)
         .then((response) => response.data)
         .then((data) => {
-            console.log("place data", data)
             setFormState((prevState) => {
                 return {
                     ...prevState,
@@ -78,6 +77,7 @@ export const MeetingComponent = () => {
     React.useEffect(() => {
         axios.get(`http://localhost:8000/users/${userProfile.sub}`)
         .then((response) => {
+            console.log('response', response);
             setFriends(response.data.data);
         })
         .catch(error => console.log('error getting friends', error));
@@ -134,7 +134,6 @@ export const MeetingComponent = () => {
                 name="attendees"
                 renderInput={(params) => <TextField {...params} label="Attendees" />}
                 onChange={handleAutoCompleteSelect}
-                // isOptionEqualToValue={(option, value) => option.value === value.value }
                 disableCloseOnSelect
                 getOptionLabel={(option) => option[1]}
                 renderOption={(props, option, { selected }) => (

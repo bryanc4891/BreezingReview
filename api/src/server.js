@@ -213,6 +213,28 @@ app.get('/geoinfo', async (req, res) => {
     }
 });
 
+app.get('/get-meetings/:userId', async (req, res) => {
+    try {
+        let userId = req.params.userId;
+        console.log(userId);
+        console.log("HAHAHA");
+        const response = await axios.get(`${process.env.MEETUP_ENDPOINT}/prod/meetup?userId=${userId}`, {
+            headers: {
+                'x-api-key': process.env.API_KEY
+            }
+        });
+        res.send({
+            statusCode: 200,
+            message: response.data
+        })
+    } catch (error) {
+        console.error('Failed to fetch Meetings List :', error);
+        res.json({
+            statusCode: 500,
+            message: 'Failed to fetch meetings List' });
+    }
+});
+
 app.listen(8000, () => {
     console.log('Server is listening on port 8000');
 });

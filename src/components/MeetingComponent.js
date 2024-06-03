@@ -14,14 +14,15 @@ import Checkbox from '@mui/material/Checkbox';
 
 export const MeetingComponent = () => {
 
-    const now = Date.now();
+    // const now = Date.now();
 
     const userProfile = useUserProfile();
     const [friends, setFriends] = React.useState([]);
 
     const [formState, setFormState] = React.useState({
         organiser: userProfile,
-        place: null,
+        placeId: null,
+        placeName: null,
         datetime: null,
         attendees: null
     });
@@ -31,7 +32,8 @@ export const MeetingComponent = () => {
         event.preventDefault();
             axios.post(`http://localhost:8000/meeting` , {
                 organiser: userProfile.sub,
-                place: formState?.place.place_id,
+                placeId: formState?.placeId,
+                placeName: formState?.placeName,
                 datetime: formState.datetime,
                 attendees: formState?.attendees.map(value => value[0]).join(',')
             }, {
